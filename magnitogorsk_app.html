@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Magnitogorsk 1932</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#111;color:#f0ede8;min-height:100vh;overscroll-behavior:none}
+#app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+#header{background:#1a1a1a;padding:12px 16px 8px;border-bottom:1px solid #333;flex-shrink:0}
+#header h1{font-size:13px;font-weight:600;color:#c8a87a;letter-spacing:1.5px;text-transform:uppercase}
+#header p{font-size:11px;color:#666;margin-top:2px}
+#nav{display:flex;background:#161616;border-bottom:1px solid #2a2a2a;flex-shrink:0}
+.nav-btn{flex:1;padding:10px 8px;font-size:12px;font-weight:600;color:#666;background:none;border:none;cursor:pointer;letter-spacing:.5px;text-transform:uppercase;transition:all .15s;border-bottom:2px solid transparent}
+.nav-btn.active{color:#c8a87a;border-bottom-color:#c8a87a}
+#search-bar{padding:8px 12px;background:#1a1a1a;border-bottom:1px solid #2a2a2a;flex-shrink:0;display:flex;gap:8px}
+#search{flex:1;background:#2a2a2a;border:1px solid #333;border-radius:8px;padding:8px 12px;color:#f0ede8;font-size:14px;outline:none}
+#search::placeholder{color:#555}
+#search:focus{border-color:#c8a87a}
+.filter-tabs{display:flex;gap:6px;padding:8px 12px;background:#1a1a1a;border-bottom:1px solid #2a2a2a;flex-shrink:0;overflow-x:auto;scrollbar-width:none}
+.filter-tabs::-webkit-scrollbar{display:none}
+.tab-btn{background:#2a2a2a;border:1px solid #333;border-radius:20px;color:#aaa;font-size:11px;font-weight:600;padding:5px 12px;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .15s}
+.tab-btn.active{background:#c8a87a;color:#1a1a1a;border-color:#c8a87a}
+.filter-row{display:flex;overflow-x:auto;padding:6px 12px;gap:6px;background:#161616;border-bottom:1px solid #2a2a2a;flex-shrink:0;scrollbar-width:none;min-height:38px;align-items:center}
+.filter-row::-webkit-scrollbar{display:none}
+.filter-chip{background:#222;border:1px solid #333;border-radius:16px;color:#999;font-size:11px;font-weight:600;padding:4px 10px;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .15s}
+.filter-chip.active{border-color:currentColor}
+#alpha-bar{display:flex;overflow-x:auto;padding:6px 12px;gap:4px;background:#1a1a1a;border-bottom:1px solid #2a2a2a;flex-shrink:0;scrollbar-width:none}
+#alpha-bar::-webkit-scrollbar{display:none}
+.alpha-btn{background:#2a2a2a;border:1px solid #333;border-radius:6px;color:#aaa;font-size:12px;font-weight:600;padding:4px 8px;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.alpha-btn.active{background:#c8a87a;color:#1a1a1a;border-color:#c8a87a}
+#pnj-view{display:flex;flex-direction:column;flex:1;overflow:hidden}
+#lieux-view{display:none;flex-direction:column;flex:1;overflow:hidden}
+#enquetes-view{display:none;flex-direction:column;flex:1;overflow:hidden}
+#list-view{flex:1;overflow-y:auto;padding:8px}
+#detail-view{flex:1;overflow-y:auto;display:none;padding:0}
+#lieux-list{flex:1;overflow-y:auto;padding:8px}
+#lieu-detail{flex:1;overflow-y:auto;display:none;padding:0}
+#enquetes-list{flex:1;overflow-y:auto;padding:8px}
+#enquete-detail{flex:1;overflow-y:auto;display:none;padding:0}
+.section-header{font-size:11px;font-weight:700;color:#c8a87a;letter-spacing:2px;text-transform:uppercase;padding:8px 4px 4px}
+.pnj-item{background:#1e1e1e;border:1px solid #2a2a2a;border-radius:10px;padding:12px 14px;margin-bottom:6px;cursor:pointer;display:flex;align-items:center;gap:12px}
+.pnj-item:active{background:#2a2a2a}
+.lieu-item{background:#1e1e1e;border:1px solid #2a2a2a;border-radius:10px;padding:14px 16px;margin-bottom:6px;cursor:pointer;display:flex;align-items:center;gap:14px}
+.lieu-item:active{background:#2a2a2a}
+.avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0}
+.pnj-info{flex:1;min-width:0}
+.pnj-name{font-size:14px;font-weight:600;color:#f0ede8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pnj-role{font-size:12px;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.pnj-badge{font-size:10px;padding:2px 7px;border-radius:10px;flex-shrink:0;font-weight:600}
+.detail-header{background:#1a1a1a;padding:14px 16px 12px;border-bottom:1px solid #2a2a2a;display:flex;align-items:center;gap:14px}
+.detail-back{background:#2a2a2a;border:1px solid #333;border-radius:8px;padding:7px 12px;font-size:13px;color:#aaa;cursor:pointer;flex-shrink:0}
+.detail-back:active{background:#333}
+.detail-avatar{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;flex-shrink:0}
+.detail-lieu-icon{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+.detail-name{font-size:17px;font-weight:700;color:#f0ede8}
+.detail-role{font-size:12px;color:#888;margin-top:3px}
+.detail-body{padding:14px 16px}
+.detail-section{margin-bottom:16px}
+.detail-section-title{font-size:10px;font-weight:700;color:#c8a87a;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
+.detail-row{display:flex;gap:8px;margin-bottom:6px;align-items:flex-start}
+.detail-label{font-size:11px;color:#666;width:72px;flex-shrink:0;padding-top:1px;text-transform:uppercase;letter-spacing:.5px}
+.detail-value{font-size:13px;color:#d4cfc8;flex:1;line-height:1.5}
+.logement-box{background:#141820;border:1px solid #2a3040;border-radius:8px;padding:10px 12px;display:flex;align-items:flex-start;gap:10px}
+.logement-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.logement-adresse{font-size:13px;color:#a8b8d0;font-weight:600;line-height:1.4}
+.logement-note{font-size:12px;color:#6a7a90;margin-top:3px;line-height:1.4}
+.chip{display:inline-block;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;margin:2px 2px 2px 0}
+.enquete-box{background:#1e1a14;border:1px solid #3a3020;border-radius:8px;padding:10px 12px}
+.enquete-text{font-size:13px;color:#c8b890;line-height:1.6}
+.chips-row{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.no-result{text-align:center;padding:40px 20px;color:#555;font-size:14px}
+.count-badge{font-size:11px;color:#666;padding:0 4px}
+.desc-column{margin-bottom:12px}
+.desc-col-title{font-size:10px;font-weight:700;color:#c8a87a;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;padding:6px 0 4px;border-bottom:1px solid #2a2a2a}
+.desc-item{font-size:12px;color:#a09a94;padding:3px 0;border-bottom:1px solid #1e1e1e;line-height:1.4}
+.desc-item:last-child{border-bottom:none}
+.lieu-name-col{flex:1;min-width:0}
+.lieu-title{font-size:15px;font-weight:600;color:#f0ede8}
+.lieu-sub{font-size:12px;color:#888;margin-top:3px}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="header">
+  <h1>Magnitogorsk 1932</h1>
+  <p>Aide de jeu — MJ</p>
+</div>
+<div id="nav">
+  <button class="nav-btn active" onclick="navigate('pnj')">Personnages</button>
+  <button class="nav-btn" onclick="navigate('lieux')">Lieux</button>
+  <button class="nav-btn" onclick="navigate('enquetes')">Enquêtes</button>
+</div>
+<div id="pnj-view">
+  <div id="search-bar"><input id="search" type="search" placeholder="Rechercher un personnage..." autocomplete="off" autocorrect="off" spellcheck="false"></div>
+  <div class="filter-tabs" id="filter-tabs">
+    <div class="tab-btn active" onclick="setMode('alpha',this)">A–Z</div>
+    <div class="tab-btn" onclick="setMode('enquete',this)">Enquêtes</div>
+    <div class="tab-btn" onclick="setMode('lieu',this)">Lieux</div>
+  </div>
+  <div class="filter-row" id="filter-row"></div>
+  <div id="alpha-bar"></div>
+  <div id="list-view"></div>
+  <div id="detail-view"></div>
+</div>
+<div id="lieux-view"><div id="lieux-list"></div><div id="lieu-detail"></div></div>
+<div id="enquetes-view"><div id="enquetes-list"></div><div id="enquete-detail"></div></div>
+</div>
+
+<script>
+const PNJ = [
+  {id:'akmaral',nom:'Akmaral',physique:'Vieille, ridée, droite malgré l\'âge',caractere:'Vénérable, fervente, secrète',fonction:'Chamane tengrite',enquete:'Culte secret de l\'Entrepôt Zéro — fausse piste, parfaitement inoffensive',cat:'neutre',lieux:['tentes'],logement:{adresse:'Zone tentes/yourtes — yourte sans numéro, périphérie ouest',cantine:null,note:'Identifiable uniquement par les membres du culte ou Kassym'}},
+  {id:'alekseeva',nom:'Anushka Alekseeva',physique:'—',caractere:'—',fonction:'Ouvrière disparue souterrain',enquete:'Victime des tubes — corps tranché net dans la galerie (2e strate)',cat:'souterrain',lieux:['souterrain'],logement:null},
+  {id:'aleksandrovich',nom:'Piotr Aleksandrovich',physique:'Grisonnant, voûté, costume propre',caractere:'Procédurier, inatteignable, incorruptible',fonction:'Bureaucrate — palais administratif',enquete:'Accès aux archives — formulaires interminables, résultats nuls mais légaux',cat:'neutre',lieux:['palais'],logement:{adresse:'Bât. 2 — cadres administratifs, chambre 3',cantine:'Réfectoire A — cadres administratifs',note:'Chambre propre, dossiers soigneusement classés, rien de compromettant'}},
+  {id:'avdotya',nom:'Avdotya Kuzmina',physique:'Gracieuse, regard fermé',caractere:'Traumatisée, discrète, naïve',fonction:'Gymnaste, komsomolka',enquete:'Meurtre Komsomol — fausse suspecte, alibi chez Messelier, connaissait Zina',cat:'meurtre',lieux:['komsomol','berezki'],logement:{adresse:'Bât. 5 — femmes seules, chambre 3',cantine:'Réfectoire C — ouvriers',note:'Lettres de Messelier dissimulées sous le matelas.'}},
+  {id:'bakhytov',nom:'Timur Bakhytov',physique:'Jeune, visage kazakh, silencieux',caractere:'Attentif, direct, peu bavard',fonction:'Conducteur de convoi',enquete:'Sabotages — traces de pas féminins près du km 2 après le premier incident',cat:'sabotage',lieux:['entrepots','mine'],logement:{adresse:'Bât. 9 — ouvriers ordinaires, chambre 17',cantine:'Réfectoire D — ouvriers',note:'Carnet de route avec annotations sur les incidents.'}},
+  {id:'belousoff',nom:'Oleg Belousoff',physique:'Juvénile, anguleux, regard direct',caractere:'Consciencieux, intègre, prudent',fonction:'Agent de police réaffecté aux mines',enquete:'Trafic matériel — a lancé l\'enquête, écarté par Igor. Sa prochaine piste était Sacha Orloff',cat:'trafic',lieux:['mine','police'],logement:{adresse:'Bât. 4 — agents de police, chambre 8',cantine:'Réfectoire A — police et cadres',note:'Notes manuscrites sur le trafic cachées dans la doublure de sa veste. Copies de plaintes.'}},
+  {id:'blokhin',nom:'Fyodor Blokhin',physique:'Carré, mains larges, traits épuisés',caractere:'Méthodique, taiseux',fonction:'Contremaître fonderie — empoisonné',enquete:'Empoisonnement — décédé J+5, travaillait section D, buvait au robinet incriminé',cat:'empoisonnement',lieux:['usine','dispensaire'],logement:{adresse:'Bât. 7 — ouvriers qualifiés, chambre 11',cantine:'Réfectoire C — ouvriers (équipe de nuit)',note:'Chambre inoccupée depuis le décès. Cahier de quart récupérable.'}},
+  {id:'bondarenko',nom:'Yegor Bondarenko',physique:'Trapu, lent, regard vide',caractere:'Passif, peu impliqué',fonction:'Ouvrier chargement/déchargement',enquete:'Sabotages — fausse piste, présent sur 2 incidents mais aucun accès au matériel sensible',cat:'sabotage',lieux:['entrepots'],logement:{adresse:'Bât. 11 — ouvriers ordinaires, chambre 6',cantine:'Réfectoire D — ouvriers',note:'Rien de notable.'}},
+  {id:'cheskov',nom:'Vassili Cheskov',physique:'Petit, effacé, se fond dans la masse',caractere:'Discret, fiable pour Sacha, sans initiative',fonction:'Ouvrier intermédiaire — réseau trafic',enquete:'Trafic matériel — achemine les caisses vers le réduit, livre des colis à Igor à Berezki',cat:'trafic',lieux:['gare','berezki','entrepots'],logement:{adresse:'Bât. 13 — koulaks assignés, chambre 22',cantine:'Réfectoire F — koulaks',note:'Argent liquide dans une boîte de conserve vide sous son lit. Vêtements propres incompatibles avec son salaire.'}},
+  {id:'fenenka',nom:'Macha Fenenka',physique:'Menue, blême, regard qui fuit',caractere:'Terrorisée, silencieuse, fragile',fonction:'Komsomolka — victime de Grigori',enquete:'Meurtre Komsomol — témoin de l\'agression de Grigori, peut confirmer que Zina en fut témoin',cat:'meurtre',lieux:['komsomol'],logement:{adresse:'Bât. 5 — femmes seules, chambre 14',cantine:'Réfectoire C — ouvriers',note:'Journal intime avec allusions voilées aux événements.'}},
+  {id:'gordeeva',nom:'Maria Gordeeva',physique:'Femme d\'âge moyen, regard précis',caractere:'Organisée, directe, fiable',fonction:'Responsable entrepôt n°7',enquete:'Trafic matériel — signale la rotation anormale des ouvriers dans le dossier d\'Oleg',cat:'trafic',lieux:['entrepots'],logement:{adresse:'Bât. 2 — cadres administratifs, chambre 9',cantine:'Réfectoire B — cadres techniques et administratifs',note:'Copies personnelles des plaintes et inventaires anormaux.'}},
+  {id:'grachev',nom:'Semyon Grachev',physique:'Maigre, traits tirés, mains fines',caractere:'Précis, calme avant la maladie',fonction:'Ingénieur adjoint tuyauterie — empoisonné',enquete:'Empoisonnement — coma, pronostic engagé, section D réseau hydraulique',cat:'empoisonnement',lieux:['usine','dispensaire'],logement:{adresse:'Bât. 3 — cadres techniques, chambre 5',cantine:'Réfectoire B — cadres techniques',note:'Carnet technique avec schémas du réseau hydraulique Section D.'}},
+  {id:'ibragimova',nom:'Yaroslava Ibragimova',physique:'—',caractere:'—',fonction:'Ouvrière — effondrement',enquete:'1re strate — morte de ses blessures, corps trouvé au campement',cat:'souterrain',lieux:['souterrain'],logement:null},
+  {id:'kazakova',nom:'Larissa Kazakova',physique:'Épuisée, creusée, regard fixe',caractere:'Endeuillée, déterminée, implacable',fonction:'Ouvrière administrative convois',enquete:'Sabotages — auteure des six incidents, a perdu mari et deux enfants. Commande des explosifs via Sacha Orloff',cat:'sabotage',lieux:['entrepots','baraquements'],logement:{adresse:'Bât. 5 — femmes seules, chambre 12',cantine:'Réfectoire C — ouvriers',note:'Lime fine dans son casier. Scie à métaux sous sa paillasse. Graisse sur ses vêtements. Photo de sa famille.'}},
+  {id:'kazakoff',nom:'Maxim Kazakoff',physique:'Difforme, massif, démarche lente',caractere:'Innocent, démuni, pathétique',fonction:'Agent d\'entretien Komsomol',enquete:'Meurtre Komsomol — bouc-émissaire désigné par Grigori, condamné à tort, départ goulag imminent',cat:'meurtre',lieux:['komsomol','police'],logement:{adresse:'Prison, bloc 27 — cellule commune',cantine:'Rations de prison — bloc 27',note:'Chambre au Komsomol déjà fouillée par Leonid. Rien de nouveau à trouver.'}},
+  {id:'kelley',nom:'Matthew Kelley',physique:'Décharné, défait, yeux rouges',caractere:'Mélancolique, alcoolique, anxieux',fonction:'Ingénieur américain',enquete:'Le promeneur — a peut-être vu une larve amorphe de nuit, témoignage peu fiable (était ivre)',cat:'neutre',lieux:['berezki'],logement:{adresse:'Berezki — maison individuelle n°11',cantine:'Cantine Berezki — étrangers',note:'Bouteilles vides en quantité. Journal de bord erratique avec description de la créature.'}},
+  {id:'korolyoff',nom:'Akim Korolyoff',physique:'Brisé, tremblant, regard absent',caractere:'Délirant, inconsolable',fonction:'Ouvrier — effondrement',enquete:'1re strate — bloqué au fond d\'un puits avec le corps de sa femme, refuse la réalité de sa mort',cat:'souterrain',lieux:['souterrain'],logement:{adresse:'Bât. 9 — ouvriers ordinaires, chambre 4 (inoccupée)',cantine:'Réfectoire D — ouvriers (absent depuis l\'effondrement)',note:'Chambre abandonnée depuis l\'effondrement.'}},
+  {id:'korolyova',nom:'Vassilisa Korolyova',physique:'—',caractere:'—',fonction:'Ouvrière — effondrement',enquete:'1re strate — morte d\'une chute dans le puits',cat:'souterrain',lieux:['souterrain'],logement:null},
+  {id:'kulikova',nom:'Agrafena Kulikova',physique:'Corpulente, mains abîmées',caractere:'Robuste, peu démonstrative',fonction:'Ouvrière entretien machines — empoisonnée',enquete:'Empoisonnement — inconsciente, section D entretien général',cat:'empoisonnement',lieux:['usine','dispensaire'],logement:{adresse:'Bât. 5 — femmes seules, chambre 21',cantine:'Réfectoire C — ouvriers',note:'Rien de notable.'}},
+  {id:'kurbanoff',nom:'Venyamin Kurbanoff',physique:'Athlétique, bien bâti, traits nets',caractere:'Craint plus que respecté',fonction:'Cadre supérieur du Parti',enquete:'Le noyé — tué accidentellement par une larve amorphe. Enquête classée à tort',cat:'noye',lieux:['berges','berezki'],logement:{adresse:'Berezki — maison individuelle n°4 (sous scellés)',cantine:'Cantine Berezki — direction et Parti',note:'La maison est sous scellés depuis le décès. Rien d\'incriminant.'}},
+  {id:'leonid',nom:'Leonid Vinogradoff',physique:'Moustachu, regard fatigué',caractere:'Passif, suit les ordres, peu curieux',fonction:'Gradé de police — enquêteur meurtre',enquete:'Meurtre Komsomol — a ciblé les mauvaises personnes. Dossier classé',cat:'meurtre',lieux:['police'],logement:{adresse:'Bât. 4 — agents de police, chambre 2',cantine:'Réfectoire A — police et cadres',note:'Dossier brouillon du meurtre avec notes personnelles. Mention d\'une pression d\'Igor pour clore rapidement.'}},
+  {id:'maltseva',nom:'Irina Maltseva',physique:'Petite, précise dans ses gestes',caractere:'Rigoureuse, discrète',fonction:'Technicienne contrôle qualité — empoisonnée',enquete:'Empoisonnement — coma, pronostic engagé, section D poste de mesure',cat:'empoisonnement',lieux:['usine','dispensaire'],logement:{adresse:'Bât. 5 — femmes seules, chambre 7',cantine:'Réfectoire C — ouvriers',note:'Rien de notable.'}},
+  {id:'may',nom:'Ernst May',physique:'Soigné, énergique, gestes précis',caractere:'Passionné, naïf, idéaliste',fonction:'Architecte allemand — chef bureau d\'études',enquete:'Le déserteur — a recruté Pavel Tkachenko, choqué par sa disparition, ne soupçonne rien',cat:'deserteur',lieux:['sotsgorod'],logement:{adresse:'Berezki — maison individuelle n°1',cantine:'Cantine Berezki — étrangers',note:'Plans annotés du projet Sotsgorod. Correspondance avec des architectes européens. Rien d\'illicite.'}},
+  {id:'messelier',nom:'Jean-Baptiste Messelier',physique:'Élégant, intellectuel, nerveux',caractere:'Cultivé, imprudent, romantique',fonction:'Administrateur culturel français — parti',enquete:'Meurtre Komsomol — alibi d\'Avdotya pour la nuit du meurtre. Rentré à Paris',cat:'meurtre',lieux:['berezki'],logement:{adresse:'Berezki — maison individuelle n°7 (libérée, réoccupée)',cantine:'Cantine Berezki — étrangers (parti)',note:'Parti précipitamment. Son successeur occupe déjà les lieux.'}},
+  {id:'moskalev',nom:'Grigory Moskalev',physique:'Carré, moustachu, bras épais',caractere:'Ronchon, méfiant envers les officiels',fonction:'Contremaître des convois',enquete:'Sabotages — pense à un saboteur extérieur, ne soupçonne pas Larissa',cat:'sabotage',lieux:['entrepots','mine'],logement:{adresse:'Bât. 7 — ouvriers qualifiés, chambre 3',cantine:'Réfectoire C — ouvriers qualifiés',note:'Planning des convois avec annotations personnelles.'}},
+  {id:'nesteroff',nom:'Isidor Nesteroff',physique:'Mal rasé, cerné, épuisé',caractere:'Épuisé, acéré, désabusé',fonction:'Médecin-chef du dispensaire',enquete:'Empoisonnement / noyé / pêcheur — diagnostics clés. Peut réaliser autopsies sur insistance',cat:'empoisonnement',lieux:['dispensaire'],logement:{adresse:'Chambre de garde — dispensaire principal, aile nord',cantine:'Réfectoire B — cadres (mange rarement sur place)',note:'Dossiers médicaux personnels plus détaillés que les versions officielles.'}},
+  {id:'nikiforov',nom:'Alexeï Nikiforov',physique:'Nerveux, regard qui fuit',caractere:'Complice passif, peureux',fonction:'Ouvrier déchargement zone ouest',enquete:'Trafic matériel — exécute les prélèvements avec Zykov',cat:'trafic',lieux:['entrepots'],logement:{adresse:'Bât. 11 — ouvriers ordinaires, chambre 14',cantine:'Réfectoire D — ouvriers',note:'Roubles cachés dans une boîte de conserve vide sous son lit.'}},
+  {id:'nikitina',nom:'Yelena Nikitina',physique:'Élancée, regard sévère, tenue impeccable',caractere:'Ambitieuse, compétente, rancunière',fonction:'Responsable de section — police',enquete:'Igor / trafic — a validé l\'enquête d\'Oleg, sait qu\'Igor l\'a écarté. Veut la place d\'Igor',cat:'police',lieux:['police'],logement:{adresse:'Bât. 4 — agents de police, chambre 1',cantine:'Réfectoire A — police et cadres',note:'Dossier personnel sur Igor — notes cryptées.'}},
+  {id:'nikitine',nom:'Faddei Nikitine',physique:'Carré, moustachu, regard méthodique',caractere:'Méthodique, inquiet, sérieux',fonction:'Ingénieur responsable transport minerai',enquete:'Sabotages — a compilé les incidents seul, conserve les pièces défectueuses dans une caisse fermée',cat:'sabotage',lieux:['entrepots','mine'],logement:{adresse:'Bât. 3 — cadres techniques, chambre 1',cantine:'Réfectoire B — cadres techniques',note:'Caisse fermée à clé sous son bureau — pièces défectueuses. Il la montre volontiers.'}},
+  {id:'novikoff',nom:'Grigori Novikoff',physique:'Séduisant, athlétique, sourire calibré',caractere:'Charismatique, manipulateur, impitoyable',fonction:'Komsomolets modèle — meurtrier',enquete:'Meurtre Komsomol — a étranglé Zina avec un complice, a piégé Maxim',cat:'meurtre',lieux:['komsomol'],logement:{adresse:'Komsomol — chambre responsables, n°2',cantine:'Réfectoire Komsomol — responsables',note:'Chambre soignée, sans trace compromettante. Peut-être une paire de gants neufs récente.'}},
+  {id:'orloff',nom:'Sacha Orloff',physique:'Trapu, bistreux, regard évaluateur',caractere:'Obséquieux, retors, opportuniste',fonction:'Tenancier gare / indicateur / pivot trafic',enquete:'Trafic matériel, explosifs Larissa, déserteur — sait tout, ne dit que ce qu\'il choisit',cat:'trafic',lieux:['gare'],logement:{adresse:'Gare — logement de fonction derrière le café, pièce unique',cantine:'Mange à son propre comptoir',note:'Réduit de stockage séparé, derrière la gare — introuvable sans lui ou Vassili Cheskov.'}},
+  {id:'pavlenko',nom:'Igor Pavlenko',physique:'Ventripotent, rougeaud, uniforme tendu',caractere:'Arrogant, incompétent, lâche',fonction:'Chef de la police de Magnitogorsk',enquete:'Toutes les enquêtes — incompétent partout, corrompu sur le trafic matériel',cat:'police',lieux:['police','berezki'],logement:{adresse:'Berezki — maison individuelle n°3',cantine:'Cantine Berezki — direction et Parti',note:'Cognac français, conserves étrangères, tissu de qualité — incompatibles avec son salaire. Preuve directe de corruption.'}},
+  {id:'peterson',nom:'Philip T. Peterson',physique:'Grand, bien nourri, vêtements américains',caractere:'Direct, pragmatique, sans arrière-pensée',fonction:'Ingénieur américain hydrologue',enquete:'Le déserteur — a voyagé avec Pavel jusqu\'à Tcheliabinsk, croit à l\'histoire du deuil familial',cat:'deserteur',lieux:['berezki'],logement:{adresse:'Moscou — hôtel Métropole (en déplacement)',cantine:'Cantine Berezki — étrangers (absent)',note:'Joignable par téléphone. Sa chambre à Berezki (n°8) est inoccupée.'}},
+  {id:'plotnikova',nom:'Zinaida Plotnikova',physique:'Robuste, cheveux gris, mains larges',caractere:'Directe, fiable, sans détours',fonction:'Ouvrière entretien bêtes de somme',enquete:'Sabotages — confirme un accès non autorisé au harnachement la nuit précédant le déraillement n°2',cat:'sabotage',lieux:['entrepots'],logement:{adresse:'Bât. 8 — ouvriers mixtes, chambre 5',cantine:'Réfectoire D — ouvriers',note:'Rien de notable.'}},
+  {id:'polyakoff',nom:'Anatoli Polyakoff',physique:'—',caractere:'—',fonction:'Ouvrier — effondrement',enquete:'1re strate — corps mâchonné trouvé à la corniche',cat:'souterrain',lieux:['souterrain'],logement:null},
+  {id:'rzhevsky',nom:'Pavel Rzhevsky',physique:'Musclé, visage carré',caractere:'Solide, peu loquace',fonction:'Ouvrier moulage — empoisonné',enquete:'Empoisonnement — inconscient, stable, section D atelier de moulage',cat:'empoisonnement',lieux:['usine','dispensaire'],logement:{adresse:'Bât. 9 — ouvriers ordinaires, chambre 8',cantine:'Réfectoire D — ouvriers',note:'Rien de notable.'}},
+  {id:'savchenko_d',nom:'Dmitri Savchenko',physique:'Lunettes rondes, allure de comptable',caractere:'Prudent, honnête, peu sûr de lui',fonction:'Responsable entrepôt n°11',enquete:'Trafic matériel — confirme les écarts dans le dossier d\'Oleg',cat:'trafic',lieux:['entrepots'],logement:{adresse:'Bât. 2 — cadres administratifs, chambre 14',cantine:'Réfectoire B — cadres techniques et administratifs',note:'Copies personnelles des inventaires anormaux.'}},
+  {id:'savchenko_s',nom:'Sacha Savchenko',physique:'—',caractere:'—',fonction:'Ouvrier — effondrement',enquete:'1re strate — mort d\'une chute dans le gouffre',cat:'souterrain',lieux:['souterrain'],logement:null},
+  {id:'shcherbakov',nom:'Boris Shcherbakov',physique:'Grand, bras noueux, démarche lente',caractere:'Taciturne, minutieux sur les rails',fonction:'Ouvrier pose et entretien des voies',enquete:'Sabotages — fausse piste, présent sur 2 incidents liés aux rails',cat:'sabotage',lieux:['entrepots','mine'],logement:{adresse:'Bât. 8 — ouvriers mixtes, chambre 11',cantine:'Réfectoire D — ouvriers',note:'Rien de notable.'}},
+  {id:'sokoloff',nom:'Dorofei Sokoloff',physique:'Vieux, visage figé dans la terreur',caractere:'Le doyen du groupe',fonction:'Ouvrier — effondrement',enquete:'1re strate — mort d\'un infarctus en voyant la larve',cat:'souterrain',lieux:['souterrain'],logement:null},
+  {id:'sorokina',nom:'Natalya Sorokina',physique:'Propre, ordonnée, lunettes fines',caractere:'Rigoureuse, effacée',fonction:'Comptable principale — empoisonnée',enquete:'Empoisonnement — décédée J+4, section D bureau de contrôle',cat:'empoisonnement',lieux:['usine','dispensaire'],logement:{adresse:'Bât. 3 — cadres techniques, chambre 7 (inoccupée)',cantine:'Réfectoire B — cadres techniques',note:'Registres personnels avec annotations sur les mouvements de matériel Section D.'}},
+  {id:'tkachenko',nom:'Pavel Tkachenko',physique:'Nerveux, effacé, regard anxieux',caractere:'Terrifié, résolu, traqué',fonction:'Urbaniste — en fuite',enquete:'Le déserteur — fuit vers la Turquie via la Caspienne',cat:'deserteur',lieux:['sotsgorod','baraquements'],logement:{adresse:'Bât. 3 — cadres techniques, chambre 4 (quasi vide)',cantine:'Réfectoire B — cadres techniques (absent depuis sa fuite)',note:'Tous vêtements partis. Documents de travail seulement. Témoins l\'ont vu partir tôt avec ses bagages.'}},
+  {id:'udovenko',nom:'Stepan Udovenko',physique:'Carré, mains abîmées, regard direct',caractere:'Fiable, sans détours, appliqué',fonction:'Responsable hangar wagonnets',enquete:'Sabotages — a découvert les chiffons de l\'incendie avorté, a vu une silhouette féminine de nuit',cat:'sabotage',lieux:['entrepots'],logement:{adresse:'Bât. 8 — ouvriers mixtes, chambre 2',cantine:'Réfectoire D — ouvriers',note:'Rien de notable.'}},
+  {id:'vasyukova',nom:'Alyona Vasyukova',physique:'Ordinaire, regard attentif',caractere:'Observatrice, bavarde, sans malice',fonction:'Ouvrière administrative convois',enquete:'Sabotages — collègue de Larissa, note ses absences matinales depuis son deuil',cat:'sabotage',lieux:['entrepots','baraquements'],logement:{adresse:'Bât. 5 — femmes seules, chambre 9',cantine:'Réfectoire C — ouvriers',note:'Rien de notable.'}},
+  {id:'volkoff_andrei',nom:'Andreï Volkoff',physique:'—',caractere:'—',fonction:'Oncle de Kassym — mineur',enquete:'1re strate — mort dans l\'éboulis',cat:'souterrain',lieux:['souterrain','mine'],logement:null},
+  {id:'volkoff_baris',nom:'Baris Volkoff',physique:'—',caractere:'—',fonction:'Père de Kassym — mineur',enquete:'1re strate — mort dans l\'éboulis',cat:'souterrain',lieux:['souterrain','mine'],logement:null},
+  {id:'volkoff_dmitri',nom:'Dmitri Volkoff',physique:'Décharné, yeux brillants, sourire absent',caractere:'Fou, connecté aux larves, perdu',fonction:'Frère de Kassym — mineur',enquete:'3e strate — survit en se nourrissant de substance',cat:'souterrain',lieux:['souterrain'],logement:null},
+  {id:'volkova_aksinia',nom:'Aksinia Volkova',physique:'Hâve, ensanglantée, regard de noyée',caractere:'Épuisée, hagarde, dédoublée',fonction:'Sœur de Kassym — mineure',enquete:'2e strate — en lévitation dans le bassin. Dupliquée',cat:'souterrain',lieux:['souterrain'],logement:null},
+  {id:'volkov',nom:'Konstantin Volkov',physique:'Autoritaire, bien habillé',caractere:'Exigeant, peu aimé',fonction:'Ingénieur en chef fonderie — empoisonné',enquete:'Empoisonnement — premier décès notable J+3',cat:'empoisonnement',lieux:['usine','dispensaire'],logement:{adresse:'Bât. 3 — cadres techniques, chambre 2 (inoccupée)',cantine:'Réfectoire B — cadres (table réservée)',note:'Agenda avec rendez-vous en Section D les jours précédant son malaise.'}},
+  {id:'zhukova',nom:'Marfa Zhukova',physique:'Petite, gestes économes',caractere:'Discrète, endurante',fonction:'Ouvrière manutention — empoisonnée',enquete:'Empoisonnement — hospitalisée, douleurs intenses',cat:'empoisonnement',lieux:['usine','dispensaire'],logement:{adresse:'Bât. 5 — femmes seules, chambre 18',cantine:'Réfectoire E — ouvriers',note:'Rien de notable.'}},
+  {id:'zina',nom:'Zina Krylova',physique:'—',caractere:'Appréciée de tous, prometteuse',fonction:'Gymnaste médaillée, komsomolka',enquete:'Meurtre Komsomol — victime de Grigori',cat:'meurtre',lieux:['komsomol'],logement:{adresse:'Bât. 5 — femmes seules, chambre 8 (sous scellés)',cantine:'Réfectoire C — ouvriers / réfectoire Komsomol selon les jours',note:'Fouillée par Leonid. Médailles de compétition, carnet d\'entraînement.'}},
+  {id:'zuev',nom:'Timofei Zuev',physique:'Sec, visage creusé',caractere:'Stoïque, peu expressif',fonction:'Ouvrier manutention — empoisonné',enquete:'Empoisonnement — hospitalisé, douleurs intenses',cat:'empoisonnement',lieux:['usine','dispensaire'],logement:{adresse:'Bât. 11 — ouvriers ordinaires, chambre 19',cantine:'Réfectoire E — ouvriers',note:'Rien de notable.'}},
+  {id:'zykov',nom:'Konstantin Zykov',physique:'Trapu, mâchoire carrée, regard dur',caractere:'Défensif, autoritaire, loyal à Sacha',fonction:'Chef d\'équipe déchargement zone ouest',enquete:'Trafic matériel — organise les prélèvements, écarte les ouvriers curieux',cat:'trafic',lieux:['entrepots'],logement:{adresse:'Bât. 7 — ouvriers qualifiés, chambre 14',cantine:'Réfectoire C — ouvriers qualifiés',note:'Argent liquide dans une boîte à outils fermée. Liste des ouvriers écartés et remplacés.'}},
+];
+
+const DEROULEMENT=[
+  {
+  id: 'introduction',
+  sub:'Début - présentation',
+  icon:'',
+  color:'#5b5bd5',
+  colonnes: [
+    {
+      titre:'Un peu d\'histoire',
+      items:[
+        'Fin du XIXe siècle > empire russe dirigé par le tsar Nicolas 2',
+        'Une élite aristocratique concentre les richesses',
+        'Paysans et ouvriers vivent dans des conditions très dures',
+        'industrialisation commence mais brutale et mal encadrée',
+        'Octobre 1917, révolution bolchévique menée par Lenine',
+        'Entre 1917 et 1922, guerre civile entre bolchéviques et royalistes: victoire des bolchéviques',
+        '1922: naissance de l\'union soviétique avec idéologie communiste:',
+        'Société sans classe mais très vite avec un pouvoir centralisé et autoritaire',
+        'Après la guerre, le pays est ruiné. Lénine met en place la NEP (Nouvelle Politique Économique)',
+        '1924: mort de Lenine. Lutte de pouvoir et victoire de Staline',
+        'Fin des années 1920: transformation radicale du pays',
+        '- collectivisation des terres (souvent violente)',
+        '- industrialisation massive via les plans quinquennaux',
+        '1928: procès de Chakty: premier procès politique, surnommé le complot des saboteurs',
+        'contexte difficile: début de l’industrialisation forcée, objectifs irréalistes de production, nombreux dysfonctionnements techniques',
+        'le pouvoir a besoin de responsable',
+        'La police arrête des ingénieurs et techniciens dans une région minière (Chakhty)',
+        'Ils sont accusés de :',
+        '- saboter volontairement la production',
+        '- collaborer avec d\'anciens propriétaires capitalistes exilés',
+        '- participer à un complot contre l\'État soviétique',
+        '👉 C’est la première fois que le terme “saboteur” est utilisé officiellement comme crime politique en URSS',
+        'Procès est public, mis en scène, et fortement médiatisé :',
+        '- aveux obtenus sous pression',
+        '- récit construit d’un complot international',
+        '- accusés présentés comme des ennemis du peuple',
+        '👉 C’est un modèle des futurs procès staliniens .',
+        '⚰️ Les verdicts',
+        '- 11 condamnations à mort (dont certaines commuées)',
+        '- des dizaines de peines de prison',
+        '- quelques acquittements',
+        'Mais l’objectif réel n’est pas judiciaire.',
+        '🎯 Le vrai rôle du procès',
+        '1. Créer un ennemi intérieur: problèmes économiques ne viennent pas du système mais de “traîtres” infiltrés',
+        '2. Justifier la répression',
+        '➡️ arrestations massives d’ingénieurs',
+        '➡️ méfiance envers les “spécialistes”',
+        '➡️ contrôle accru de l’industrie',
+        '3. Préparer les purges',     
+      ]      
+    },
+    {
+      titre: 'Borislav Petrenko',
+      items: [
+        'Leningrad',
+        'Fin du mois d\'avril 1932',
+        'En fin de journée',
+        'Dans la cuisine modeste de l\'appartement modeste',
+        'prend un repas simple, presque froid. Un verre de thé tiede',
+        'pas de bruit',
+        'On frappe à la porte: 3 coups sec',
+        'Sans attendre de réponse, la porte s’ouvre.'
+        'Deux hommes entrent',
+        'Manteaux longs. Bottes propres',
+        'Ils referment derrière eux.',
+        'Borislav se lève et reste figé',
+        '[silence]',
+        'Le premier homme sort un document',
+        '[il dit: Borislav Petrenko et laisse pas le temps de répondre?]',
+        '[Vous allez nous suivre]',
+        'Le second homme observe la pièce. Lentement',
+        '[Prenez vos affaires]',
+        '[Réagir de manière sèche à ce que fais le PJ]',
+        'Attrape un sac, y met quelques affaires',
+        'Referme la porte et suit les deux hommes',
+        'Emmène à la gare et mettent dans un train direction Moscou'
+      ]
+    }
+  ],
+  }
+];
+
+const LIEUX=[
+  {
+  id:'introduction',
+  label:'Introduction',
+  sub:'Début - présentation',
+  icon:'',
+  color:'#5b5bd5',
+  colonnes:[
+    {
+      titre:'Contexte',
+      items:[
+        'Russie',
+        '1932',
+        'Régime communiste autoritaire de Staline',
+        'Premier plan quinquennal: industrialisation à marche forcée',
+        'Peuple encore enthousiaste',
+        'Climat tendu envers le monde extérieur',
+        'Leningrad, fin avril 1932',
+        'Borislav est récupéré à son bureau puis mis dans le train',
+        'Sergei est récupéré chez lui avec sa femme et son fils de 6ans puis mis dans le train',
+        'Mikhail, militaire, est briefé par son supérieur sur la mission',
+        'Aleksei est mis au courant de sa mission mais raconte pareil que Borislav et Sergei',
+        'Borislav, Sergei, Mikhail et Aleksei se rejoigne dans le train à Moscou direction Magnitogorsk en passant par Tcheliabinsk',
+        '1 semaine de trajet en train dans un confort assez rudimentaire mais mieux que les ouvriers qui s\'entassent dans des wagons limite à bestiaux',
+        'Les PJ peuvent discuter et faire connaissance',
+        'Après 1 semaine donc, le train traverse les paysages désertiques des steppes de l\'oural ',
+        'Matin, ciel gris et bas',
+        'Puis, tente et yourte à pertes de vue',
+        'Puis des bâtiments',
+        'Et enfin, les grandes cheminées avec fumée noire et le site industriel à perte de vue',
+        'Arrivée du train en gare',
+        'Foule, bousculade, ouvriers pressés, prisonniers surveillés par des militaires, des familles qui cherchent leur chemin',
+        'Le sol est une gigantesque piscine de boue',
+        'En face, de grands entrepôts avec des machines, des outils, du matériel',
+        'A gauche, le petit bar de fortune de Sacha Orloff',
+        'Au milieu de tout ceci, un garçon qui s\'essuie le pantalon',
+        'il a une pancarte avec dessus "Mikhail Voronin"',
+        '[Laisser les pj faire]',
+        'Kassym se présente et explique qu\'il est le guide',
+        'sortir de la gare, aller là ou veulent les PJ',
+      ]
+    },
+  ]
+},
+  {id:'gare',label:'La Gare',sub:'Arrivée — Sacha Orloff',icon:'🚂',color:'#8a7a5a',colonnes:[{titre:'Depuis le train',items:['Hautes cheminées sur ciel gris','Panaches de fumée avant la ville','Steppe aride et boueuse','Premières tentes en périphérie','Bâtiments industriels surgissant','Wagons sous escorte militaire','Odeur de suie et métal chaud']},{titre:'Sur le quai',items:['Quai en planches mal assemblées','Foule dense avant l\'arrêt','Vapeur aveuglante sur le quai','Sol transformé en mare de boue','Bagages portés à bout de bras','Enfants perdus pleurant','Kassym et sa pancarte bousculé']},{titre:'Le café d\'Orloff',items:['Espace bâché entre wagons désaffectés','Comptoir taché, verres ébréchés','Sacha Orloff souriant à tout le monde','Conversations reprenant dès qu\'un inconnu s\'éloigne','Information monnayée entre deux verres','Regard calculateur derrière la bonhomie']},{titre:'Détails qui restent',items:['Papiers administratifs souillés abandonnés','Valise éventrée pillée','Chaussure unique dans la boue','Rails disparaissant vers Tcheliabinsk','Silence relatif après le chaos']},]},
+  {id:'baraquements',label:'Les Baraquements',sub:'Logement des PJ',icon:'🏚',color:'#7a7a7a',colonnes:[{titre:'Extérieur',items:['Long bâtiment bas sans fenêtres en façade','Planches noircies par l\'humidité','Toit de tôle rouillée','Vêtements séchant sur des fils','Voix étouffées depuis le seuil']},{titre:'Le couloir',items:['Couloir étroit aux planches craquantes','Ampoule unique tous les dix mètres','Odeur de corps confinés et soupe froide','Murmures derrière une porte s\'interrompant']},{titre:'La chambre',items:['Lits superposés aux montants rouillés','Matelas de paille sous toile à sac','Couverture militaire unique','Fenêtre opaque de condensation','Froid remontant du sol','Inscription griffonnée dans le bois du lit']},{titre:'La nuit',items:['Ronflements et gémissements dans le noir','Toux sèche toutes les minutes','Craquement de pas furtifs','Prière murmurée derrière la cloison','Cloche annonçant la première rotation']},]},
+  {id:'usine',label:'L\'Usine Sidérurgique',sub:'Chantier principal',icon:'🏭',color:'#c87a30',colonnes:[{titre:'Vue d\'ensemble',items:['Panaches de fumée noire déchirant le ciel','Lueur orange pulsant sur les nuages','Grondement sourd à des kilomètres','Odeur de soufre portée par le vent','Vibration continue du sol']},{titre:'Dans les allées',items:['Routes défoncées convergeant vers le chantier','Slogans révolutionnaires en lettres géantes','Portraits de Staline sur chaque façade','Boue profonde avalant les semelles','Prisonniers en haillons sous escorte']},{titre:'Machines',items:['Soufflets de forge pulsant comme des poumons','Flammes jaillissant des évents','Chaînes de levage cliquetantes','Passerelles métalliques branlantes']},{titre:'Les hommes',items:['Visages creusés noircis de suie','Mains gercées sur les outils','Toux grasse dans les couloirs','Numéros d\'identification sur les vestes','Gamelles bosselées aux ceintures']},]},
+  {id:'dispensaire',label:'Le Dispensaire',sub:'Isidor Nesteroff',icon:'🏥',color:'#5ab5a0',colonnes:[{titre:'Approche',items:['Croix rouge délavée à peine visible','Gémissements avant d\'entrer','Odeur de désinfectant et putréfaction','File silencieuse de blessés dans la boue']},{titre:'La salle',items:['Lits de camp trop serrés pour circuler','Couvertures militaires en cloisons','Visages cireux tournés vers le plafond','Toux se répondant d\'un bout à l\'autre']},{titre:'Le médecin-chef',items:['Isidor Nesteroff : mal rasé, cerné, acéré','Instruments rouillant dans l\'eau trouble','Plateau chirurgical à peine rincé','Planche servant de table d\'opération']},{titre:'Détails sombres',items:['Fiole de morphine vide près d\'une main inerte','Odeur douceâtre de tissu en nécrose','Registre des morts ouvert','Drap tiré lentement sur un visage']},]},
+  {id:'police',label:'Bureaux de la Police',sub:'Igor Pavlenko',icon:'⭐',color:'#5b9bd5',colonnes:[{titre:'Zone militarisée',items:['Barbelés rouillés ceinturant la zone','Miradors en bois aux angles','Drapeau soviétique délavé','Silence comparé au chantier voisin']},{titre:'En entrant',items:['Formulaire tendu sans un mot','Tampon frappé avec force inutile','Portrait de Staline vissé trop haut','Odeur de soupe froide et tabac']},{titre:'Le bureau d\'Igor Pavlenko',items:['Bureau massif disproportionné','Portrait de Staline plus grand que les autres','Chaise des visiteurs plus basse que la sienne','Dossier retourné à l\'arrivée des visiteurs']},{titre:'Les cellules',items:['Odeur d\'urine et paille humide','Regard d\'un prisonnier par le judas','Grandes tentes de prisonniers au fond','Toux collective comme fond sonore']},]},
+  {id:'sotsgorod',label:'Bureau d\'Études',sub:'Ernst May — Sotsgorod',icon:'📐',color:'#5bd5d5',colonnes:[{titre:'Extérieur',items:['Béton propre incongru dans la boue','Fenêtres larges filtrant lumière chaude','Plaque gravée en allemand et russe','Aucun barbelé ni garde armé']},{titre:'La grande salle',items:['Tables à dessin inclinées avec précision','Plans de la ville utopique en mètres carrés','Odeur de crayon, encre et colle','Voix calmes en français, allemand, russe']},{titre:'Les hommes',items:['Ingénieurs étrangers aux vêtements propres','Dessinateurs russes courbés en silence','Débat à voix basse entre français et allemand','Montre consultée discrètement']},{titre:'Atmosphère',items:['Tension quand un fonctionnaire soviétique entre','Plan froissé retourné à l\'approche d\'un inconnu','Fenêtre ouverte malgré le froid — odeur de peur','Contraste entre plans parfaits et chaos'],},]},
+  {id:'komsomol',label:'Le Komsomol',sub:'Jeunesses soviétiques',icon:'✊',color:'#a07ad5',colonnes:[{titre:'Extérieur',items:['Slogans régulièrement rafraîchis','Rires et voix jeunes tranchant sur la ville','Perron déneigé avec soin','Maxim Kazakoff s\'affairant avec un balai']},{titre:'Bâtiment principal',items:['Affiches de propagande sur les murs','Grigori Novikoff accueillant avec sourire trop parfait','Poignée de main ferme, regard trop soutenu']},{titre:'Le gymnase',items:['Odeur de transpiration et magnésie blanche','Ruban de compétition avec le nom de Zina Krylova','Tache sombre près de la porte latérale','Courant d\'air froid de la porte extérieure']},{titre:'Indices — Grigori Novikoff',items:['Éloge de Zina trop long','Affirmation d\'amitié facilement contredite','Main sur l\'épaule d\'un jeune qui se raidit','Empressement à orienter vers Maxim Kazakoff']},]},
+  {id:'palais',label:'Palais Administratif',sub:'Piotr Aleksandrovich',icon:'🏛',color:'#d5a05b',colonnes:[{titre:'Ambiance',items:['Bâtiment le plus massif hors industrie','Couloirs silencieux aux portraits officiels','Formulaires abscons pour chaque demande','Attente interminable avant toute audience']},{titre:'Piotr Aleksandrovich',items:['Grisonnant, voûté, costume propre','Procédurier, inatteignable, incorruptible','Résultats nuls mais légaux','Signature du Directeur — une journée de patience']},]},
+  {id:'berezki',label:'Berezki',sub:'Village des étrangers',icon:'🏡',color:'#78b55a',colonnes:[{titre:'Approche',items:['Absence de fumée noire à l\'horizon','Silence après le vacarme permanent','Odeur d\'herbe humide et bois de chauffage','Route goudronnée — unique asphalte']},{titre:'Dans les rues',items:['Rues larges et dégagées, sans boue','Vélos appuyés sans qu\'on les attache','Voix en allemand, français et anglais','Lumières restant allumées tard']},{titre:'Les maisons',items:['Doubles fenêtres contre le froid','Eau courante audible','Livres en plusieurs langues sur étagères','Odeur de café véritable et tabac étranger']},{titre:'Atmosphère',items:['Sourires se crispant à l\'approche d\'officiels','Matthew Kelley déambulant seul avec sa bouteille','Voisin se souvenant de livraisons nocturnes','Soulagement quand les officiels repartent']},]},
+  {id:'entrepots',label:'Entrepôts et Hangars',sub:'Piste des sabotages',icon:'📦',color:'#c8a020',colonnes:[{titre:'Extérieur',items:['Bâtiments métalliques aux toits bombés rouillés','Portes coulissantes sur rails mal graissés','Wagonnets vides abandonnés sur les rails','Odeur de métal rouillé et graisse froide']},{titre:'Zone de stockage',items:['Volume intérieur écrasant','Caisses empilées jusqu\'au plafond','Allées trop étroites pour deux hommes chargés','Ombres profondes avalant les lanternes']},{titre:'Hangar wagonnets',items:['Moyeu fracturé sur chiffon huileux — fracture nette','Harnachement tranché net recollé au fil','Rail déformé gardé par Faddei Nikitine comme preuve']},{titre:'La nuit — Larissa Kazakova',items:['Silhouette longeant les wagonnets sans lanterne','Empreinte de petit pied dans la boue','Éclat de métal fraîchement limé sous un essieu']},]},
+  {id:'mine',label:'Mont Magnitnaïa',sub:'Les mines de fer',icon:'⛏',color:'#a05a3a',colonnes:[{titre:'Vue d\'ensemble',items:['Masse sombre dominant la steppe','Ciel voilé de poussière rouge','Grondement sourd des explosions étouffées','Odeur de pierre pulvérisée']},{titre:'Aux abords',items:['Chevalets métalliques surmontant les puits','Nuages de poussière rouge à chaque déchargement','Flaques d\'eau ferrugineuse orange']},{titre:'Entrées des galeries',items:['Silence brutal dès les premiers mètres','Obscurité totale quelques mètres plus loin','Courant d\'air froid et humide']},{titre:'Les hommes',items:['Toux grasse des mineurs sortant','Yeux rouges cherchant l\'air frais','Odeur de poudre à canon après les tirs']},]},
+  {id:'berges',label:'Berges de l\'Oural',sub:'Le noyé — lac artificiel',icon:'🌊',color:'#4a90c8',colonnes:[{titre:'Vue d\'ensemble',items:['Fleuve large et lent découpant la steppe','Surface terne et opaque','Berges abruptes stabilisées par pierres noires']},{titre:'Le lac artificiel',items:['Zone de découverte de Venyamin Kurbanoff — aucune trace d\'effondrement','Eau peu profonde — un adulte y aurait pied','Sentiment d\'être observé depuis la surface']},{titre:'La nuit',items:['Forme indistincte sous la surface sans vagues','Odeur froide et organique montant brièvement','Sensation de quelque chose frôlant une cheville']},]},
+  {id:'tentes',label:'Zone Tentes et Yourtes',sub:'Périphérie — Akmaral',icon:'⛺',color:'#c8905a',colonnes:[{titre:'Vue d\'ensemble',items:['Mer de toile et feutre en périphérie','Fumées de dizaines de feux','Absence totale d\'éclairage artificiel au-delà','Regard méfiant des adultes sur tout étranger']},{titre:'Intérieur yourte',items:['Chaleur étouffante après le froid','Feutre épais absorbant tous les sons','Foyer central entouré de pierres noircies','Bol de thé salé tendu sans un mot']},{titre:'Culte secret — nuit',items:['Silhouettes sans lanterne à pas rapides','Odeur d\'encens de plus en plus nette','Akmaral debout les yeux fermés — exaltée','Statuettes et ossements disposés en cercle']},]},
+  {
+  id:'souterrain',
+  label:'Les Souterrains',
+  sub:'Exploration — progression linéaire',
+  icon:'🕳️',
+  color:'#5b5bd5',
+  colonnes:[
+    {
+      titre:'Entrée',
+      items:[
+        'Ouverture dans une zone effondrée du chantier',
+        'Boyau étroit plongeant dans l’obscurité',
+        'Air lourd, poussiéreux, difficile à respirer',
+        'Lumière du jour disparaissant rapidement derrière eux'
+      ]
+    },
+    {
+      titre:'Éboulement',
+      items:[
+        'Passage instable aux parois fragilisées',
+        'Pierres et gravats menaçant de céder',
+        'Bruit sourd de roches qui travaillent',
+        'Progression lente et dangereuse'
+      ]
+    },
+    {
+      titre:'Campement',
+      items:[
+        'Traces d’une présence humaine passée',
+        'Matériel abandonné et couchages rudimentaires',
+        'Lieu déserté précipitamment',
+        'Silence anormal, comme figé'
+      ]
+    },
+    {
+      titre:'La corde',
+      items:[
+        'Corde fixée dans la roche, descendant dans l’obscurité',
+        'Usure visible, utilisation récente',
+        'Se balance légèrement sans raison apparente',
+        'Seul moyen sûr de continuer'
+      ]
+    },
+    {
+      titre:'Le survivant',
+      items:[
+        'Individu affaibli, en état de choc',
+        'Discours incohérent ou fragmenté',
+        'Évoque quelque chose dans les profondeurs',
+        'Semble terrorisé par ce qu’il a vu'
+      ]
+    },
+    {
+      titre:'La peinture',
+      items:[
+        'Marques ou symboles tracés sur les parois',
+        'Couleurs ternes, parfois altérées',
+        'Tentatives de repérage ou avertissements',
+        'Signification incertaine'
+      ]
+    },
+    {
+      titre:'La corniche',
+      items:[
+        'Passage étroit longeant un vide profond',
+        'Paroi glissante et instable',
+        'Chute potentiellement mortelle',
+        'Nécessite équilibre et prudence'
+      ]
+    },
+    {
+      titre:'La porte',
+      items:[
+        'Structure artificielle au milieu de la roche',
+        'Aspect incongru dans cet environnement',
+        'Semble ancienne ou déplacée ici',
+        'Marque une transition nette'
+      ]
+    },
+    {
+      titre:'Le conduit',
+      items:[
+        'Tunnel plus régulier, presque construit',
+        'Parois lisses et resserrées',
+        'Propagation inhabituelle des sons',
+        'Sensation d’être guidé ou canalisé'
+      ]
+    },
+    {
+      titre:'Les tubes',
+      items:[
+        'Structures traversant l’espace à grande vitesse',
+        'Trajectoires imprévisibles',
+        'Contact extrêmement dangereux',
+        'Environnement devenu activement hostile'
+      ]
+    },
+    {
+      titre:'Le ruban de Moebius',
+      items:[
+        'Configuration impossible du passage',
+        'Sensation de revenir sans jamais faire demi-tour',
+        'Orientation totalement perturbée',
+        'Perte de repères spatiaux'
+      ]
+    },
+    {
+      titre:'Le bassin',
+      items:[
+        'Étendue de substance sombre et immobile',
+        'Surface anormalement lisse',
+        'Profondeur impossible à estimer',
+        'Danger latent en cas de contact'
+      ]
+    },
+    {
+      titre:'Le double temporel',
+      items:[
+        'Vision troublante d’une scène déjà vécue',
+        'Présence fugace semblant familière',
+        'Décalage entre perception et réalité',
+        'Trouble profond chez les témoins'
+      ]
+    },
+    {
+      titre:'La grande galerie',
+      items:[
+        'Immense espace aux proportions démesurées',
+        'Parois sombres à la texture étrange',
+        'Multiples ouvertures menant à d’autres galeries',
+        'Silence presque total malgré l’ampleur du lieu'
+      ]
+    },
+    {
+      titre:'Les bulles',
+      items:[
+        'Formes minérales traversant lentement l’espace',
+        'Apparition et disparition dans les parois',
+        'Solides mais impossibles à arrêter',
+        'Phénomène incompréhensible et inquiétant'
+      ]
+    },
+    {
+      titre:'La rotation',
+      items:[
+        'Mouvement soudain de sections entières',
+        'Perte d’équilibre brutale',
+        'Réorganisation silencieuse de l’espace',
+        'Nausée et désorientation immédiates'
+      ]
+    },
+    {
+      titre:'Le barillet',
+      items:[
+        'Structure cylindrique en mouvement',
+        'Rotation interne ou externe du passage',
+        'Difficulté à progresser sans être emporté',
+        'Impression d’être pris dans un mécanisme'
+      ]
+    },
+    {
+      titre:'Le fou',
+      items:[
+        'Individu isolé, comportement instable',
+        'Discours décousu ou obsessionnel',
+        'Semble connaître les lieux mais incompréhensible',
+        'Peut représenter un danger ou une aide ambiguë'
+      ]
+    },
+    {
+      titre:'Rencontre',
+      items:[
+        'Présence d’une forme amorphe inconnue',
+        'Mouvement lent mais menaçant',
+        'Réaction à la lumière ou à la présence humaine',
+        'Rencontre directe avec quelque chose d’incompréhensible'
+      ]
+    },
+    {
+      titre:'Le Nexus',
+      items:[
+        'Point central vers lequel tout converge',
+        'Espace instable et difficile à appréhender',
+        'Impression d’être au cœur du phénomène',
+        'Fuite devient une nécessité immédiate'
+      ]
+    }
+  ]
+},
+  {id:'refectoire',label:'Le Réfectoire',sub:'Cantine collective',icon:'🍲',color:'#8a5a3a',colonnes:[{titre:'Approche',items:['Odeur de soupe de chou portée par le vent','File permanente le long de la façade','Vapeur blanche s\'échappant par les fentes']},{titre:'La grande salle',items:['Longues tables en bois brut','Femmes en tablier gris distribuant les portions','Ouvriers mangeant vite sans goûter','Agent surveillant les doubles portions']},{titre:'Les repas',items:['Bouillie de sarrasin, pain noir, thé dilué (matin)','Chtchi — soupe de chou et os à moelle (midi)','Kacha d\'orge grise, soupe claire (soir)']},]},
+  {
+  id:'prison',
+  label:'La Prison (Bloc 27)',
+  sub:'Détention — prisonniers de droit commun',
+  icon:'⛓️',
+  color:'#6b5b4b',
+  colonnes:[
+    {
+      titre:'Structure et surveillance',
+      items:[
+        'Zone militarisée entourée de barbelés',
+        'Présence constante de soldats armés',
+        'Proximité directe des bureaux de la police',
+        'Accès strictement contrôlé et intimidant'
+      ]
+    },
+    {
+      titre:'Conditions de détention',
+      items:[
+        'Prisonniers parqués dans de grandes tentes collectives',
+        'Conditions de vie déplorables et précaires',
+        'Froid, humidité et manque de ressources',
+        'Surpopulation et absence totale de confort'
+      ]
+    },
+    {
+      titre:'Rôle dans le complexe',
+      items:[
+        'Main-d’œuvre forcée pour le chantier industriel',
+        'Travaux les plus pénibles confiés aux détenus',
+        'Exploitation systématique par le système soviétique',
+        'Vie humaine considérée comme interchangeable'
+      ]
+    },
+    {
+      titre:'Ambiance',
+      items:[
+        'Atmosphère oppressante et résignée',
+        'Fatigue extrême et fatalisme des prisonniers',
+        'Violence institutionnelle omniprésente',
+        'Silence pesant ponctué d’ordres et de cris'
+      ]
+    }
+  ]
+}
+];
+
+const ENQUETES=[
+  {id:'sabotages',label:'Les Sabotages',icon:'💣',color:'#5bd55b',statut:'Enquête ouverte — 29 avril 1932',resume:'Six incidents sur les voies de transport de minerai. L\'auteure est Larissa Kazakova, ouvrière au service de Faddei Nikitine, qui a perdu mari et deux enfants sur le chantier.',verite:'Larissa Kazakova, 26 ans, bât.5 ch.12. Accès aux plannings et au hangar. Contact confirmé avec Sacha Orloff — explosifs commandés. Projet d\'attentat au palais administratif.',faussespistes:['Planning diurne — présente chaque matin après chaque incident (alibi volontaire)','Yegor Bondarenko — présent sur 2 incidents mais aucun accès au matériel','Boris Shcherbakov — présent sur 2 incidents rails, c\'est son domaine'],bonnespistes:['Stepan Udovenko — silhouette féminine de nuit près du hangar','Timur Bakhytov — traces de pas féminins près du km 2','Zinaida Plotnikova — harnachement sorti et remis en place avant le déraillement n°2','Lime fine dans son casier, scie sous sa paillasse (perquisition bât.5 ch.12)','Sacha Orloff sous pression — confirme commande d\'explosifs par une femme'],incidents:[{n:'Déraillement n°1',date:'Il y a 5 sem.',lieu:'Voie principale km 2',desc:'Moyeu désolidarisé en pleine charge',preuve:'Limé de nuit — certain',victimes:'Aucune — 3h d\'arrêt'},{n:'Déraillement n°2',date:'Il y a 4 sem.',lieu:'Voie secondaire sortie hangar',desc:'Harnachement tranché, wagonnet renversé',preuve:'Tranchée et recollée — certain',victimes:'Bête blessée'},{n:'Déraillement n°3',date:'Il y a 3 sem.',lieu:'Virage km 3,5',desc:'Rail déformé — deux wagonnets déraillés',preuve:'Marques d\'outil — certain',victimes:'Blocage 1 journée'},{n:'Déraillement n°4',date:'Il y a 2 sem.',lieu:'Voie principale km 1',desc:'Boulons retirés sur 10 mètres',preuve:'Absence inexplicable — probable',victimes:'1 ouvrier blessé'},{n:'Déraillement n°5',date:'Il y a 10 j.',lieu:'Sortie hangar',desc:'Axe scié au tiers — rupture sous charge',preuve:'Entaille à la scie — certain',victimes:'Aucune — 5h d\'arrêt'},{n:'Incendie avorté',date:'Il y a 6 j.',lieu:'Entrepôt de stockage',desc:'Chiffons huileux contre caisses de bois',preuve:'Disposition trop précise — probable',victimes:'Aucune — découvert avant'},],pnjslies:['kazakova','bakhytov','bondarenko','moskalev','nikitine','plotnikova','shcherbakov','udovenko','vasyukova','orloff']},
+  {id:'empoisonnement',label:'L\'Empoisonnement',icon:'☠',color:'#d5855b',statut:'Enquête en cours — N° 1932-08/EMP — 18 avril 1932',resume:'Depuis mi-avril, une contamination frappe les travailleurs de la Section D. Toutes les victimes ont bu à un robinet unique dans le couloir halle fonderie / atelier moulage.',verite:'Une larve amorphe s\'est infiltrée dans le réseau hydraulique Section D. La larve n\'est plus présente — l\'analyse d\'eau ne donne rien. Il faut démonter la tuyauterie pour trouver les résidus gélatineux.',faussespistes:['Réfectoire commun — échec : victimes dans B, C, D, E et F','Baraquement commun — échec : bât. 3, 5, 7, 9, 11 et 13','Grade ou fonction identique — échec : tous les niveaux touchés'],bonnespistes:['Section D — toutes les victimes y sont affectées','Robinet unique dans le couloir de liaison halle fonderie / atelier moulage','Démontage tuyauterie — résidus organiques gélatineux sur parois','Résidus identiques à ceux de l\'explosion de la machine hydraulique','Isidor Nesteroff peut diagnostiquer les ouvriers asymptomatiques sur insistance'],incidents:[{n:'Konstantin Volkov †',date:'J+3',lieu:'Section D — supervision',desc:'Ingénieur en chef fonderie',preuve:'Réfectoire B (cadres)',victimes:'Décédé'},{n:'Natalya Sorokina †',date:'J+4',lieu:'Section D — bureau contrôle',desc:'Comptable principale',preuve:'Réfectoire B',victimes:'Décédée'},{n:'Fyodor Blokhin †',date:'J+5',lieu:'Section D — halle fonderie',desc:'Contremaître équipe de nuit',preuve:'Réfectoire C',victimes:'Décédé'},{n:'Semyon Grachev',date:'En cours',lieu:'Section D — hydraulique',desc:'Ingénieur adjoint tuyauterie',preuve:'Réfectoire B',victimes:'Coma — pronostic engagé'},{n:'Irina Maltseva',date:'En cours',lieu:'Section D — mesure',desc:'Technicienne contrôle qualité',preuve:'Réfectoire C',victimes:'Coma — pronostic engagé'},{n:'Pavel Rzhevsky',date:'En cours',lieu:'Section D — moulage',desc:'Ouvrier moulage',preuve:'Réfectoire D',victimes:'Inconscient — stable'},{n:'Agrafena Kulikova',date:'En cours',lieu:'Section D — entretien',desc:'Ouvrière entretien machines',preuve:'Réfectoire C',victimes:'Inconsciente — stable'},{n:'Timofei Zuev',date:'En cours',lieu:'Section D — chargement',desc:'Ouvrier manutention',preuve:'Réfectoire E',victimes:'Douleurs — hospitalisé'},{n:'Marfa Zhukova',date:'En cours',lieu:'Section D — chargement',desc:'Ouvrière manutention',preuve:'Réfectoire E',victimes:'Douleurs — hospitalisée'},],pnjslies:['volkov','sorokina','blokhin','grachev','maltseva','rzhevsky','kulikova','zuev','zhukova','nesteroff']},
+  {id:'trafic',label:'Les Disparitions de Matériel',icon:'📦',color:'#d55b5b',statut:'Classé — N° 1932-03/ENT — 28 mars 1932 (par Igor)',resume:'Depuis deux ans, des consommables industriels sont prélevés lors des déchargements ferroviaires et revendus au marché noir. Igor Pavlenko ferme les yeux en échange de livraisons régulières.',verite:'Réseau : Konstantin Zykov organise, Alexeï Nikiforov exécute, Vassili Cheskov achemine vers le réduit de Sacha Orloff, qui revend et livre à Igor Pavlenko. Igor reçoit cognac, conserves, tissu. Oleg Belousoff avait tout compris, réaffecté sur ordre d\'Igor.',faussespistes:['Dossier classé par Igor Pavlenko lui-même — il manque la dernière page','Yelena Nikitina semble complice mais n\'est que contrainte'],bonnespistes:['Dossier d\'Oleg Belousoff — rotation anormale, Zykov défensif, Nikiforov fuyant','Oleg Belousoff aux mines — sa prochaine piste était Sacha Orloff','Voisin de Berezki — petit homme trapu livrant des colis le soir (Vassili Cheskov)','Domicile d\'Igor Pavlenko (Berezki n°3) — cognac français, conserves, tissu','Yelena Nikitina — confirme réaffectation anormale sur ordre direct d\'Igor','Sacha Orloff — palier 3 si joueurs cumulent les trois preuves'],incidents:[{n:'Konstantin Zykov',date:'Exposition : Fort',lieu:'Chef équipe déchargement',desc:'Organise les prélèvements sur premiers wagons',preuve:'Identifiable via dossier Oleg',victimes:'Actif'},{n:'Alexeï Nikiforov',date:'Exposition : Fort',lieu:'Ouvrier déchargement',desc:'Exécute les prélèvements avec Zykov',preuve:'Regard fuyant — interrogatoire Oleg',victimes:'Actif'},{n:'Vassili Cheskov',date:'Exposition : Moyen',lieu:'Ouvrier intermédiaire',desc:'Achemine les caisses vers le réduit, livre à Igor',preuve:'Connu de Sacha seulement',victimes:'Actif'},{n:'Sacha Orloff',date:'Exposition : Faible',lieu:'Pivot central',desc:'Stocke, revend, gère les acheteurs',preuve:'Pas de traces directes',victimes:'Actif'},{n:'Igor Pavlenko',date:'Exposition : Très faible',lieu:'Protection passive',desc:'Classe les plaintes, écarte les enquêteurs',preuve:'Aucune trace écrite',victimes:'Actif'},],pnjslies:['zykov','nikiforov','cheskov','orloff','pavlenko','belousoff','nikitina','gordeeva','savchenko_d']},
+  {id:'meurtre',label:'Le Meurtre au Komsomol',icon:'🔴',color:'#d55bd5',statut:'Classé — N° 1932-06/MRT — 28 avril 1932',resume:'Zina Krylova, 19 ans, étranglée dans la nuit du 4 au 5 avril. Maxim Kazakoff, innocent, condamné et en partance pour le goulag. Le vrai coupable est Grigori Novikoff.',verite:'Grigori Novikoff a étranglé Zina Krylova avec un complice. Il avait agressé Macha Fenenka ; Zina en fut témoin et voulut le dénoncer. Il a fabriqué les preuves contre Maxim Kazakoff. Départ pour le goulag la semaine du 8 mai.',faussespistes:['Avdotya Kuzmina — fausse suspecte, alibi chez Jean-Baptiste Messelier confirmé','Maxim Kazakoff — preuves fabriquées par Grigori Novikoff'],bonnespistes:['Rapport d\'autopsie — strangulation à deux (marques de poignets tenus)','Avdotya Kuzmina — Zina allait au Komsomol cet après-midi-là, paraissait soucieuse','Retracer la visite de Zina — Maxim Kazakoff, Sofia Lysenka, puis Grigori Novikoff','Grigori Novikoff — éloge de Zina trop long, affirmation d\'amitié facilement contredite','Macha Fenenka — témoigne de l\'agression si les PJ offrent des garanties crédibles'],incidents:[{n:'Zina Krylova',date:'4-5 avril 1932',lieu:'Abords gymnase Komsomol',desc:'Strangulation — cordelette. Avait vu l\'agression de Grigori sur Macha',preuve:'Autopsie Isidor Nesteroff — deux assaillants',victimes:'Morte'},{n:'Maxim Kazakoff',date:'Condamné 3 mai',lieu:'Prison bloc 27',desc:'Bouc-émissaire. Preuves fabriquées.',preuve:'Incapable de se défendre verbalement',victimes:'Goulag semaine du 8 mai'},{n:'Macha Fenenka',date:'Avant le meurtre',lieu:'Komsomol',desc:'Victime de Grigori — agression dont Zina fut témoin',preuve:'Terrorisée, ne parlera que sous garantie',victimes:'Traumatisée'},{n:'Grigori Novikoff',date:'Libre',lieu:'Komsomol',desc:'Avenir brillant dans le Parti. Sourire calibré.',preuve:'Peut être contredit sur la chronologie',victimes:'Coupable non arrêté'},],pnjslies:['zina','kazakoff','novikoff','fenenka','avdotya','leonid','messelier','pavlenko']},
+  {id:'deserteur',label:'Le Déserteur',icon:'🚂',color:'#d5c05b',statut:'Enquête en cours — N° 1932-07/DIS — 29 avril 1932',resume:'Pavel Tkachenko, urbaniste, disparu le 26 avril. Igor Pavlenko croit à un espionnage allemand. En réalité Pavel fuit le régime vers la Turquie via la mer Caspienne.',verite:'Pavel Tkachenko est parti à 5h du matin avec tous ses bagages. A pris le train avec Philip T. Peterson jusqu\'à Tcheliabinsk puis a continué seul. Encore en territoire soviétique.',faussespistes:['Hypothèse d\'Igor Pavlenko — élimination par espions allemands via Ernst May','Brûlait des papiers dans le poêle — jugé anodin sur le moment'],bonnespistes:['Chambre de Pavel Tkachenko (bât.3 ch.4) — vide, tous vêtements partis','Témoins sur le chemin de la gare — l\'ont vu partir avec ses bagages','Sacha Orloff — l\'a vu partir tôt avec ses affaires','Philip T. Peterson à Moscou (téléphone) — a voyagé avec Pavel jusqu\'à Tcheliabinsk','Guépéou de Moscou — Pavel était surveillé, famille déportée'],incidents:[{n:'Pavel Tkachenko',date:'Disparu le 26 avril',lieu:'En fuite — vers Turquie',desc:'Urbaniste, ex-service tsariste. A brûlé des papiers.',preuve:'Encore en territoire soviétique',victimes:'En fuite'},{n:'Ernst May',date:'Interrogé 29 avril',lieu:'Bureau d\'études Sotsgorod',desc:'L\'a recruté. Choqué. Ne soupçonne rien.',preuve:'Aucun élément pertinent',victimes:'Libre'},{n:'Philip T. Peterson',date:'À Moscou',lieu:'Hôtel Métropole (téléphone)',desc:'A voyagé avec Pavel jusqu\'à Tcheliabinsk.',preuve:'Confirme le trajet en train',victimes:'Libre'},],pnjslies:['tkachenko','may','peterson','orloff','pavlenko']},
+  {id:'noye',label:'Le Noyé',icon:'🌊',color:'#5bd5c0',statut:'Classé — N° 1932-05/DEC — 24 avril 1932',resume:'Venyamin Kurbanoff, cadre du Parti, retrouvé noyé le 21 avril. Classé accident. En réalité tué par une larve amorphe.',verite:'Une larve amorphe a happé Venyamin Kurbanoff par la jambe et l\'a entraîné dans l\'eau. Athlétique et bon nageur — noyade sans choc crânien inexplicable.',faussespistes:['Rapport officiel — chute par effondrement de rive (aucune trace)','Suspects politiques interrogés — aucun intérêt'],bonnespistes:['Isidor Nesteroff — lésions jambe droite incompatibles avec une chute, pas de choc crânien','Eau peu profonde à l\'endroit de la découverte — adulte y a pied','Aucune trace de lutte ni de glissade sur la rive boueuse','Résidus organiques si mis en parallèle avec la machine et l\'empoisonnement'],incidents:[{n:'Venyamin Kurbanoff',date:'21 avril 1932',lieu:'Lac artificiel n°2',desc:'Cadre supérieur du Parti. Inspectait la zone.',preuve:'Lésions jambe droite, pas de choc crânien',victimes:'Décédé'},],pnjslies:['kurbanoff','nesteroff','pavlenko']},
+  {id:'machine',label:'La Machine',icon:'⚙',color:'#888',statut:'Classé — N° 1932-04/SAB — 8 avril 1932',resume:'Le 2 avril, explosion d\'une pièce de machinerie de la fonderie n°1. Deux ingénieurs emprisonnés pour négligence. En réalité : une larve amorphe aspirée dans les conduites.',verite:'Une larve aspirée depuis le fleuve a été ébouillantée, s\'est bloquée dans la canalisation et a provoqué l\'explosion. Résidus gélatineux sur les lieux. Cris suraigus entendus avant l\'explosion.',faussespistes:['Hypothèse officielle — limon du fleuve accumulé dans les conduites','Grilles de filtrage en place et fonctionnelles'],bonnespistes:['Substance organique gélatineuse sur les lieux (fouille minutieuse)','Ouvriers présents — cris suraigus avant l\'explosion','Ingénieurs Sorokin et Malysheff — version cohérente : quelque chose dans le réseau','Résidus identiques à ceux de la tuyauterie Section D'],incidents:[{n:'Dmitri Sorokin',date:'Emprisonné 3 avril',lieu:'Bloc 27',desc:'Ingénieur responsable maintenance fonderie n°1.',preuve:'Innocent — bouc-émissaire',victimes:'Détenu'},{n:'Ivan Malysheff',date:'Emprisonné 3 avril',lieu:'Bloc 27',desc:'Ingénieur adjoint maintenance fonderie n°1.',preuve:'Innocent — bouc-émissaire',victimes:'Détenu'},],pnjslies:['nesteroff','pavlenko']},
+];
+
+const CAT_LABELS={police:'Police',trafic:'Trafic',sabotage:'Sabotages',meurtre:'Meurtre',deserteur:'Déserteur',souterrain:'Souterrain',empoisonnement:'Poison',noye:'Le noyé',neutre:'Autre'};
+const CAT_COLORS={police:'#5b9bd5',trafic:'#d55b5b',sabotage:'#5bd55b',meurtre:'#d55bd5',deserteur:'#d5c05b',souterrain:'#5b5bd5',empoisonnement:'#d5855b',noye:'#5bd5c0',neutre:'#888'};
+const LIEU_LABELS={gare:'Gare',baraquements:'Baraquements',usine:'Usine',dispensaire:'Dispensaire',police:'Police',komsomol:'Komsomol',sotsgorod:'Bureau d\'études',palais:'Palais admin.',berezki:'Berezki',entrepots:'Entrepôts',mine:'Mines',berges:'Berges',tentes:'Tentes/Yourtes',souterrain:'Souterrain',refectoire:'Réfectoire'};
+const LIEU_COLORS={gare:'#8a7a5a',baraquements:'#7a7a7a',usine:'#c87a30',dispensaire:'#5ab5a0',police:'#5b9bd5',komsomol:'#a07ad5',sotsgorod:'#5bd5d5',palais:'#d5a05b',berezki:'#78b55a',entrepots:'#c8a020',mine:'#a05a3a',berges:'#4a90c8',tentes:'#c8905a',souterrain:'#5b5bd5',refectoire:'#8a5a3a'};
+
+let mode='alpha', activeFilter='', currentSearch='';
+
+/* ─── Routeur ─────────────────────────────────────────────────── */
+// Un état = { sec:'pnj'|'lieux'|'enquetes', id:string|null }
+
+function pushState(sec, id){
+  const st={sec,id:id||null};
+  const hash='#'+sec+(id?'/'+id:'');
+  history.pushState(st,'',location.pathname+hash);
+  render(st);
+}
+
+function replaceState(sec, id){
+  const st={sec,id:id||null};
+  const hash='#'+sec+(id?'/'+id:'');
+  history.replaceState(st,'',location.pathname+hash);
+  render(st);
+}
+
+window.addEventListener('popstate', e=>{
+  render(e.state || parseHash());
+});
+
+function parseHash(){
+  const h=(location.hash||'#pnj').replace('#','');
+  const parts=h.split('/');
+  return {sec:parts[0]||'pnj', id:parts[1]||null};
+}
+
+function render(st){
+  const {sec,id}=st;
+  // onglet nav
+  document.querySelectorAll('.nav-btn').forEach((b,i)=>{
+    b.classList.toggle('active',['pnj','lieux','enquetes'][i]===sec);
+  });
+  // sections
+  document.getElementById('pnj-view').style.display='none';
+  document.getElementById('lieux-view').style.display='none';
+  document.getElementById('enquetes-view').style.display='none';
+
+  if(sec==='pnj'){
+    document.getElementById('pnj-view').style.display='flex';
+    if(id) _showPnjDetail(id);
+    else    _showPnjList();
+  } else if(sec==='lieux'){
+    document.getElementById('lieux-view').style.display='flex';
+    if(id) _showLieuDetail(id);
+    else    _showLieuList();
+  } else {
+    document.getElementById('enquetes-view').style.display='flex';
+    if(id) _showEnqueteDetail(id);
+    else    _showEnqueteList();
+  }
+}
+
+/* appelé par les boutons de nav */
+function navigate(sec){ pushState(sec, null); }
+
+/* ─── PNJ ─────────────────────────────────────────────────────── */
+function _showPnjList(){
+  document.getElementById('detail-view').style.display='none';
+  document.getElementById('list-view').style.display='block';
+  document.getElementById('filter-tabs').style.display='flex';
+  document.getElementById('search-bar').style.display='flex';
+  buildFilterRow();
+  renderList();
+}
+
+function _showPnjDetail(id){
+  const p=PNJ.find(x=>x.id===id); if(!p) return;
+  const col=CAT_COLORS[p.cat]||'#888', bg=avatarBg(p.cat);
+  const lieuxChips=(p.lieux||[]).map(l=>{
+    const c=LIEU_COLORS[l]||'#888';
+    return `<span class="chip" style="background:#1a1a1a;color:${c};border:1px solid ${c};cursor:pointer" onclick="pushState('lieux','${l}')">${LIEU_LABELS[l]||l}</span>`;
+  }).join('');
+  const logHtml=p.logement?`<div class="detail-section">
+    <div class="detail-section-title">Logement &amp; Ravitaillement</div>
+    <div class="logement-box">
+      <div class="logement-icon">🏠</div>
+      <div>
+        <div class="logement-adresse">${p.logement.adresse}</div>
+        ${p.logement.cantine?`<div style="font-size:12px;color:#7a8a60;margin-top:4px;font-weight:600">🍲 ${p.logement.cantine}</div>`:''}
+        ${p.logement.note?`<div class="logement-note">${p.logement.note}</div>`:''}
+      </div>
+    </div>
+  </div>`:'';
+  document.getElementById('detail-view').innerHTML=`
+    <div class="detail-header">
+      <div class="detail-back" onclick="history.back()">← Retour</div>
+      <div class="detail-avatar" style="background:${bg};color:${col}">${initials(p.nom)}</div>
+      <div><div class="detail-name">${p.nom}</div><div class="detail-role">${p.fonction}</div></div>
+    </div>
+    <div class="detail-body">
+      <div class="detail-section">
+        <div class="detail-section-title">Identité</div>
+        <div class="detail-row"><div class="detail-label">Physique</div><div class="detail-value">${p.physique}</div></div>
+        <div class="detail-row"><div class="detail-label">Caractère</div><div class="detail-value">${p.caractere}</div></div>
+        <div class="detail-row"><div class="detail-label">Enquête</div><div class="detail-value"><span class="chip" style="background:${bg};color:${col}">${CAT_LABELS[p.cat]||p.cat}</span></div></div>
+        <div class="detail-row"><div class="detail-label">Lieux</div><div class="detail-value"><div class="chips-row">${lieuxChips||'—'}</div></div></div>
+      </div>
+      ${logHtml}
+      <div class="detail-section">
+        <div class="detail-section-title">Rôle dans l'enquête</div>
+        <div class="enquete-box"><div class="enquete-text">${p.enquete}</div></div>
+      </div>
+    </div>`;
+  document.getElementById('list-view').style.display='none';
+  document.getElementById('detail-view').style.display='block';
+  document.getElementById('filter-tabs').style.display='none';
+  document.getElementById('filter-row').style.display='none';
+  document.getElementById('alpha-bar').style.display='none';
+  document.getElementById('search-bar').style.display='none';
+}
+
+/* ─── LIEUX ───────────────────────────────────────────────────── */
+function _showLieuList(){
+  document.getElementById('lieu-detail').style.display='none';
+  document.getElementById('lieux-list').style.display='block';
+  document.getElementById('lieux-list').innerHTML=LIEUX.map(l=>`
+    <div class="lieu-item" onclick="pushState('lieux','${l.id}')">
+      <div style="width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;background:${l.color}22">${l.icon}</div>
+      <div class="lieu-name-col"><div class="lieu-title">${l.label}</div><div class="lieu-sub">${l.sub}</div></div>
+      <div style="font-size:11px;color:${l.color};background:${l.color}22;padding:3px 8px;border-radius:10px;flex-shrink:0;font-weight:600">${l.colonnes.length} rubriques</div>
+    </div>`).join('');
+}
+
+function _showLieuDetail(id){
+  const l=LIEUX.find(x=>x.id===id); if(!l) return;
+  const colsHtml=l.colonnes.map(col=>`
+    <div class="desc-column">
+      <div class="desc-col-title">${col.titre}</div>
+      ${col.items.map(i=>`<div class="desc-item">— ${i}</div>`).join('')}
+    </div>`).join('');
+  const pnjsLieu=PNJ.filter(p=>p.lieux&&p.lieux.includes(id));
+  const pnjChips=pnjsLieu.map(p=>{
+    const col=CAT_COLORS[p.cat]||'#888', bg=avatarBg(p.cat);
+    return `<span class="chip" style="background:${bg};color:${col};cursor:pointer" onclick="pushState('pnj','${p.id}')">${p.nom}</span>`;
+  }).join('');
+  document.getElementById('lieu-detail').innerHTML=`
+    <div class="detail-header">
+      <div class="detail-back" onclick="history.back()">← Retour</div>
+      <div class="detail-lieu-icon" style="background:${l.color}22">${l.icon}</div>
+      <div><div class="detail-name">${l.label}</div><div class="detail-role">${l.sub}</div></div>
+    </div>
+    <div class="detail-body">
+      ${pnjsLieu.length?`<div class="detail-section"><div class="detail-section-title">Personnages présents</div><div class="chips-row">${pnjChips}</div></div>`:''}
+      <div class="detail-section"><div class="detail-section-title">Éléments de description</div>${colsHtml}</div>
+    </div>`;
+  document.getElementById('lieux-list').style.display='none';
+  document.getElementById('lieu-detail').style.display='block';
+}
+
+/* ─── ENQUETES ────────────────────────────────────────────────── */
+function _showEnqueteList(){
+  document.getElementById('enquete-detail').style.display='none';
+  document.getElementById('enquetes-list').style.display='block';
+  document.getElementById('enquetes-list').innerHTML=ENQUETES.map(e=>`
+    <div class="lieu-item" onclick="pushState('enquetes','${e.id}')">
+      <div style="width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;background:${e.color}22">${e.icon}</div>
+      <div class="lieu-name-col"><div class="lieu-title">${e.label}</div><div class="lieu-sub" style="font-size:11px;margin-top:2px">${e.statut}</div></div>
+      <div style="font-size:10px;color:${e.color};background:${e.color}22;padding:3px 8px;border-radius:10px;flex-shrink:0;font-weight:600">${e.pnjslies.length} PNJ</div>
+    </div>`).join('');
+}
+
+function _showEnqueteDetail(id){
+  const e=ENQUETES.find(x=>x.id===id); if(!e) return;
+  const STATUS_OK=['Classé','classé'].some(s=>e.statut.includes(s));
+  const statusColor=STATUS_OK?'#888':'#5bd55b', statusBg=STATUS_OK?'#2a2a2a':'#0c2a0c';
+  const incidentsHtml=e.incidents.map(i=>`
+    <div style="background:#1e1e1e;border:1px solid #2a2a2a;border-radius:8px;padding:10px 12px;margin-bottom:6px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:4px">
+        <div style="font-size:13px;font-weight:600;color:#f0ede8">${i.n}</div>
+        <div style="font-size:10px;padding:2px 7px;border-radius:8px;background:${victimColor(i.victimes)}22;color:${victimColor(i.victimes)};flex-shrink:0;font-weight:600">${i.victimes}</div>
+      </div>
+      <div style="font-size:11px;color:#888;margin-bottom:3px">${i.date} — ${i.lieu}</div>
+      <div style="font-size:12px;color:#c8b890;margin-bottom:3px">${i.desc}</div>
+      <div style="font-size:11px;color:#666;font-style:italic">${i.preuve}</div>
+    </div>`).join('');
+  const fpHtml=e.faussespistes.map(f=>`<div style="font-size:12px;color:#888;padding:3px 0;border-bottom:1px solid #1e1e1e">✗ ${f}</div>`).join('');
+  const bpHtml=e.bonnespistes.map(b=>`<div style="font-size:12px;color:#a8c890;padding:3px 0;border-bottom:1px solid #1e1e1e">✓ ${b}</div>`).join('');
+  const pnjChips=e.pnjslies.map(pid=>{
+    const p=PNJ.find(x=>x.id===pid); if(!p) return'';
+    const col=CAT_COLORS[p.cat]||'#888', bg=avatarBg(p.cat);
+    return `<span class="chip" style="background:${bg};color:${col};cursor:pointer" onclick="pushState('pnj','${p.id}')">${p.nom}</span>`;
+  }).join('');
+  document.getElementById('enquete-detail').innerHTML=`
+    <div class="detail-header">
+      <div class="detail-back" onclick="history.back()">← Retour</div>
+      <div class="detail-lieu-icon" style="background:${e.color}22">${e.icon}</div>
+      <div>
+        <div class="detail-name">${e.label}</div>
+        <div style="font-size:11px;margin-top:3px;padding:2px 8px;border-radius:6px;display:inline-block;background:${statusBg};color:${statusColor};font-weight:600">${e.statut}</div>
+      </div>
+    </div>
+    <div class="detail-body">
+      <div class="detail-section"><div class="detail-section-title">Résumé</div><div class="enquete-box"><div class="enquete-text">${e.resume}</div></div></div>
+      <div class="detail-section"><div class="detail-section-title">La vérité (MJ)</div><div class="enquete-box" style="background:#14201e;border-color:#203830"><div class="enquete-text" style="color:#90c8b0">${e.verite}</div></div></div>
+      <div class="detail-section">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div><div class="detail-section-title">Fausses pistes</div><div style="background:#1e1e1e;border:1px solid #2a2a2a;border-radius:8px;padding:8px 10px">${fpHtml}</div></div>
+          <div><div class="detail-section-title">Bonnes pistes</div><div style="background:#1e1e1e;border:1px solid #2a2a2a;border-radius:8px;padding:8px 10px">${bpHtml}</div></div>
+        </div>
+      </div>
+      <div class="detail-section"><div class="detail-section-title">Éléments / Victimes</div>${incidentsHtml}</div>
+      <div class="detail-section"><div class="detail-section-title">PNJ liés</div><div class="chips-row">${pnjChips}</div></div>
+    </div>`;
+  document.getElementById('enquetes-list').style.display='none';
+  document.getElementById('enquete-detail').style.display='block';
+}
+
+/* ─── Utilitaires ─────────────────────────────────────────────── */
+function victimColor(v){if(!v)return'#888';const vl=v.toLowerCase();if(vl.includes('décédé')||vl.includes('morte'))return'#d55b5b';if(vl.includes('coma')||vl.includes('inconscient'))return'#d5855b';if(vl.includes('condamné')||vl.includes('goulag')||vl.includes('détenu'))return'#a07ad5';if(vl.includes('fuite'))return'#d5c05b';if(vl.includes('actif')||vl.includes('libre'))return'#5bd55b';return'#888';}
+function initials(n){const p=n.trim().split(/\s+/);return p.length>=2?(p[0][0]+p[1][0]).toUpperCase():n.substring(0,2).toUpperCase();}
+function avatarBg(cat){const m={police:'#0c2a3a',trafic:'#3a0c0c',sabotage:'#0c2a0c',meurtre:'#2a0c2a',deserteur:'#2a2a0c',souterrain:'#0c0c2a',empoisonnement:'#2a180c',noye:'#0c2a28',neutre:'#222'};return m[cat]||'#222';}
+
+function getFiltered(){
+  return PNJ.filter(p=>{
+    const s=currentSearch.toLowerCase();
+    const ms=!s||p.nom.toLowerCase().includes(s)||p.fonction.toLowerCase().includes(s)||p.enquete.toLowerCase().includes(s)||(p.logement&&(p.logement.adresse.toLowerCase().includes(s)||(p.logement.note&&p.logement.note.toLowerCase().includes(s))));
+    let mf=true;
+    if(activeFilter){
+      if(mode==='alpha') mf=p.nom.trim()[0].toUpperCase()===activeFilter;
+      else if(mode==='enquete') mf=p.cat===activeFilter;
+      else if(mode==='lieu') mf=p.lieux&&p.lieux.includes(activeFilter);
+    }
+    return ms&&mf;
+  });
+}
+
+function buildFilterRow(){
+  const row=document.getElementById('filter-row'), alphaBar=document.getElementById('alpha-bar');
+  row.innerHTML=''; alphaBar.style.display='none'; row.style.display='flex';
+  if(mode==='alpha'){
+    row.style.display='none'; alphaBar.style.display='flex';
+    alphaBar.innerHTML='<div class="alpha-btn active" onclick="setFilter(\'\',this)">Tout</div>';
+    [...new Set(PNJ.map(p=>p.nom.trim()[0].toUpperCase()))].sort().forEach(l=>{
+      alphaBar.innerHTML+=`<div class="alpha-btn" onclick="setFilter('${l}',this)">${l}</div>`;
+    });
+  } else if(mode==='enquete'){
+    const cats=[...new Set(PNJ.map(p=>p.cat))].sort();
+    row.innerHTML='<div class="filter-chip active" onclick="setFilter(\'\',this)" style="color:#c8a87a;border-color:#c8a87a">Tous</div>';
+    cats.forEach(c=>{const col=CAT_COLORS[c]||'#888';const cnt=PNJ.filter(p=>p.cat===c).length;row.innerHTML+=`<div class="filter-chip" onclick="setFilter('${c}',this)" style="color:${col}">${CAT_LABELS[c]||c} <span class="count-badge">${cnt}</span></div>`;});
+  } else if(mode==='lieu'){
+    const allLieux=[...new Set(PNJ.flatMap(p=>p.lieux||[]))].sort((a,b)=>(LIEU_LABELS[a]||a).localeCompare(LIEU_LABELS[b]||b));
+    row.innerHTML='<div class="filter-chip active" onclick="setFilter(\'\',this)" style="color:#c8a87a;border-color:#c8a87a">Tous</div>';
+    allLieux.forEach(l=>{const col=LIEU_COLORS[l]||'#888';const cnt=PNJ.filter(p=>p.lieux&&p.lieux.includes(l)).length;row.innerHTML+=`<div class="filter-chip" onclick="setFilter('${l}',this)" style="color:${col}">${LIEU_LABELS[l]||l} <span class="count-badge">${cnt}</span></div>`;});
+  }
+}
+
+function setMode(m,el){
+  mode=m; activeFilter='';
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  buildFilterRow(); renderList();
+}
+
+function setFilter(val,el){
+  activeFilter=val;
+  const container=mode==='alpha'?document.getElementById('alpha-bar'):document.getElementById('filter-row');
+  container.querySelectorAll('.alpha-btn,.filter-chip').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  if(val&&mode!=='alpha') el.style.borderColor=el.style.color;
+  renderList();
+}
+
+function renderList(){
+  const list=document.getElementById('list-view');
+  const filtered=getFiltered();
+  if(!filtered.length){list.innerHTML='<div class="no-result">Aucun personnage trouvé</div>';return;}
+  let html='', lastKey='';
+  filtered.forEach(p=>{
+    let key='';
+    if(mode==='alpha'&&!currentSearch) key=p.nom.trim()[0].toUpperCase();
+    else if(mode==='enquete'&&!currentSearch) key=CAT_LABELS[p.cat]||p.cat;
+    if(key&&key!==lastKey){html+=`<div class="section-header">${key}</div>`;lastKey=key;}
+    const col=CAT_COLORS[p.cat]||'#888', bg=avatarBg(p.cat);
+    const logBadge=p.logement?'<span style="font-size:9px;color:#4a90c8;margin-left:4px">🏠</span>':'';
+    html+=`<div class="pnj-item" onclick="pushState('pnj','${p.id}')">
+      <div class="avatar" style="background:${bg};color:${col}">${initials(p.nom)}</div>
+      <div class="pnj-info"><div class="pnj-name">${p.nom}${logBadge}</div><div class="pnj-role">${p.fonction}</div></div>
+      <div class="pnj-badge" style="background:${bg};color:${col}">${CAT_LABELS[p.cat]||''}</div>
+    </div>`;
+  });
+  list.innerHTML=html;
+}
+
+document.getElementById('search').addEventListener('input',e=>{
+  currentSearch=e.target.value;
+  renderList();
+});
+
+/* ─── Init ────────────────────────────────────────────────────── */
+const initSt=parseHash();
+replaceState(initSt.sec, initSt.id);
+</script>
+</body>
+</html>
